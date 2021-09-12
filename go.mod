@@ -1,4 +1,4 @@
-module github.com/slayercat/GoSNMPServer
+module github.com/gophertribe/snmp
 
 go 1.13
 
