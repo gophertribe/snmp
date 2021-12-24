@@ -1,17 +1,19 @@
 package main
 
-import "os"
-import "strings"
-import "github.com/sirupsen/logrus"
-import "github.com/slayercat/gosnmp"
-import "github.com/slayercat/GoSNMPServer"
-import "github.com/slayercat/GoSNMPServer/mibImps"
+import (
+	"os"
+	"strings"
 
-import "github.com/urfave/cli/v2"
+	"github.com/gophertribe/snmp"
+	"github.com/gophertribe/snmp/mibImps"
+	"github.com/gosnmp/gosnmp"
+	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
+)
 
 func makeApp() *cli.App {
 	return &cli.App{
-		Name:        "gosnmpserver",
+		Name:        "snmp",
 		Description: "an example server of gosnmp",
 		Commands: []*cli.Command{
 			{
@@ -37,24 +39,24 @@ func main() {
 }
 
 func runServer(c *cli.Context) error {
-	logger := GoSNMPServer.NewDefaultLogger()
+	logger := snmp.NewDefaultLogger()
 	switch strings.ToLower(c.String("logLevel")) {
 	case "fatal":
-		logger.(*GoSNMPServer.DefaultLogger).Level = logrus.FatalLevel
+		logger.(*snmp.DefaultLogger).Level = logrus.FatalLevel
 	case "error":
-		logger.(*GoSNMPServer.DefaultLogger).Level = logrus.ErrorLevel
+		logger.(*snmp.DefaultLogger).Level = logrus.ErrorLevel
 	case "info":
-		logger.(*GoSNMPServer.DefaultLogger).Level = logrus.InfoLevel
+		logger.(*snmp.DefaultLogger).Level = logrus.InfoLevel
 	case "debug":
-		logger.(*GoSNMPServer.DefaultLogger).Level = logrus.DebugLevel
+		logger.(*snmp.DefaultLogger).Level = logrus.DebugLevel
 	case "trace":
-		logger.(*GoSNMPServer.DefaultLogger).Level = logrus.TraceLevel
+		logger.(*snmp.DefaultLogger).Level = logrus.TraceLevel
 	}
 	mibImps.SetupLogger(logger)
 
-	master := GoSNMPServer.MasterAgent{
+	master := snmp.MasterAgent{
 		Logger: logger,
-		SecurityConfig: GoSNMPServer.SecurityConfig{
+		SecurityConfig: snmp.SecurityConfig{
 			AuthoritativeEngineBoots: 1,
 			Users: []gosnmp.UsmSecurityParameters{
 				{
@@ -66,7 +68,7 @@ func runServer(c *cli.Context) error {
 				},
 			},
 		},
-		SubAgents: []*GoSNMPServer.SubAgent{
+		SubAgents: []*snmp.SubAgent{
 			{
 				CommunityIDs: []string{c.String("community")},
 				OIDs:         mibImps.All(),
@@ -84,7 +86,7 @@ func runServer(c *cli.Context) error {
 			val.PrivacyPassphrase,
 		)
 	}
-	server := GoSNMPServer.NewSNMPServer(master)
+	server := snmp.NewSNMPServer(master)
 	err := server.ListenUDP("udp", c.String("bindTo"))
 	if err != nil {
 		logger.Errorf("Error in listen: %+v", err)

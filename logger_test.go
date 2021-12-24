@@ -1,4 +1,4 @@
-package GoSNMPServer
+package snmp
 
 import "testing"
 

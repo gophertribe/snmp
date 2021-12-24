@@ -1,9 +1,12 @@
 package ucdMib
 
-import "fmt"
-import "github.com/slayercat/gosnmp"
-import "github.com/slayercat/GoSNMPServer"
-import "github.com/shirou/gopsutil/disk"
+import (
+	"fmt"
+
+	"github.com/gophertribe/snmp"
+	"github.com/gosnmp/gosnmp"
+	"github.com/shirou/gopsutil/disk"
+)
 
 // NameOverride configs what path disk usage will returns.
 type NameOverride struct {
@@ -20,12 +23,12 @@ type NameOverride struct {
 //   Args:
 //       showTheseNameOnly:  what path whill this oid returns. empty means all.
 //   see http://www.net-snmp.org/docs/mibs/ucdavis.html#DisplayString
-func DiskUsageOIDs(showTheseNameOnly ...NameOverride) []*GoSNMPServer.PDUValueControlItem {
+func DiskUsageOIDs(showTheseNameOnly ...NameOverride) []*snmp.PDUValueControlItem {
 	if len(showTheseNameOnly) == 0 {
 		partitionStats, err := disk.Partitions(false)
 		if err != nil {
 			g_Logger.Errorf("Load partitionStats failed, err=%v", err)
-			return []*GoSNMPServer.PDUValueControlItem{}
+			return []*snmp.PDUValueControlItem{}
 		}
 		for _, val := range partitionStats {
 			showTheseNameOnly = append(showTheseNameOnly, NameOverride{
@@ -34,22 +37,22 @@ func DiskUsageOIDs(showTheseNameOnly ...NameOverride) []*GoSNMPServer.PDUValueCo
 			})
 		}
 	}
-	toRet := []*GoSNMPServer.PDUValueControlItem{}
+	toRet := []*snmp.PDUValueControlItem{}
 	for id, each := range showTheseNameOnly {
 		cid := id + 1
 		currentDiskItem := each
-		thisDiskID := []*GoSNMPServer.PDUValueControlItem{
+		thisDiskID := []*snmp.PDUValueControlItem{
 			{
 				OID:      fmt.Sprintf("1.3.6.1.4.1.2021.9.1.1.%d", cid),
 				Type:     gosnmp.Integer,
-				OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1IntegerWrap(cid), nil },
+				OnGet:    func() (value interface{}, err error) { return snmp.Asn1IntegerWrap(cid), nil },
 				Document: "dskIndex",
 			},
 			{
 				OID:  fmt.Sprintf("1.3.6.1.4.1.2021.9.1.2.%d", cid),
 				Type: gosnmp.OctetString,
 				OnGet: func() (value interface{}, err error) {
-					return GoSNMPServer.Asn1OctetStringWrap(currentDiskItem.ShowName), nil
+					return snmp.Asn1OctetStringWrap(currentDiskItem.ShowName), nil
 				},
 				Document: "currentDskPath",
 			},
@@ -57,7 +60,7 @@ func DiskUsageOIDs(showTheseNameOnly ...NameOverride) []*GoSNMPServer.PDUValueCo
 				OID:  fmt.Sprintf("1.3.6.1.4.1.2021.9.1.3.%d", cid),
 				Type: gosnmp.OctetString,
 				OnGet: func() (value interface{}, err error) {
-					return GoSNMPServer.Asn1OctetStringWrap(currentDiskItem.ShowName), nil
+					return snmp.Asn1OctetStringWrap(currentDiskItem.ShowName), nil
 				},
 				Document: "currentDskDevice",
 			},
@@ -69,7 +72,7 @@ func DiskUsageOIDs(showTheseNameOnly ...NameOverride) []*GoSNMPServer.PDUValueCo
 					if err != nil {
 						return nil, err
 					}
-					return GoSNMPServer.Asn1IntegerWrap(int(data.Total / 1024 / 1024)), nil
+					return snmp.Asn1IntegerWrap(int(data.Total / 1024 / 1024)), nil
 				},
 				Document: "currentDskTotal",
 			},
@@ -81,7 +84,7 @@ func DiskUsageOIDs(showTheseNameOnly ...NameOverride) []*GoSNMPServer.PDUValueCo
 					if err != nil {
 						return nil, err
 					}
-					return GoSNMPServer.Asn1IntegerWrap(int(data.Free / 1024 / 1024)), nil
+					return snmp.Asn1IntegerWrap(int(data.Free / 1024 / 1024)), nil
 				},
 				Document: "currentDskAvail",
 			},
@@ -93,7 +96,7 @@ func DiskUsageOIDs(showTheseNameOnly ...NameOverride) []*GoSNMPServer.PDUValueCo
 					if err != nil {
 						return nil, err
 					}
-					return GoSNMPServer.Asn1IntegerWrap(int(data.Used / 1024 / 1024)), nil
+					return snmp.Asn1IntegerWrap(int(data.Used / 1024 / 1024)), nil
 				},
 				Document: "currentDskUsed",
 			},
@@ -105,7 +108,7 @@ func DiskUsageOIDs(showTheseNameOnly ...NameOverride) []*GoSNMPServer.PDUValueCo
 					if err != nil {
 						return nil, err
 					}
-					return GoSNMPServer.Asn1IntegerWrap(int(data.UsedPercent)), nil
+					return snmp.Asn1IntegerWrap(int(data.UsedPercent)), nil
 				},
 				Document: "currentDskPercent",
 			},

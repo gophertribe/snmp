@@ -1,10 +1,10 @@
-package GoSNMPServer
+package snmp
 
 import (
 	"net"
 
+	"github.com/gosnmp/gosnmp"
 	"github.com/pkg/errors"
-	"github.com/slayercat/gosnmp"
 )
 
 // PermissionAllowance  ENUM controls for Allowance

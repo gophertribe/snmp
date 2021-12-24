@@ -1,9 +1,9 @@
-package GoSNMPServer
-
-import "testing"
+package snmp
 
 import (
-	"github.com/slayercat/gosnmp"
+	"testing"
+
+	"github.com/gosnmp/gosnmp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )

@@ -1,23 +1,25 @@
 package ucdMib
 
-import "github.com/slayercat/gosnmp"
-import "github.com/slayercat/GoSNMPServer"
-import "github.com/shirou/gopsutil/mem"
+import (
+	"github.com/gophertribe/snmp"
+	"github.com/gosnmp/gosnmp"
+	"github.com/shirou/gopsutil/mem"
+)
 
 // MemoryOIDs Returns a list of memory operation.
 //   see http://www.net-snmp.org/docs/mibs/ucdavis.html#DisplayString
-func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
-	toRet := []*GoSNMPServer.PDUValueControlItem{
+func MemoryOIDs() []*snmp.PDUValueControlItem {
+	toRet := []*snmp.PDUValueControlItem{
 		{
 			OID:      "1.3.6.1.4.1.2021.4.1",
 			Type:     gosnmp.Integer,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1IntegerWrap(1), nil },
+			OnGet:    func() (value interface{}, err error) { return snmp.Asn1IntegerWrap(1), nil },
 			Document: "memIndex",
 		},
 		{
 			OID:      "1.3.6.1.4.1.2021.4.2",
 			Type:     gosnmp.OctetString,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1OctetStringWrap("swap"), nil },
+			OnGet:    func() (value interface{}, err error) { return snmp.Asn1OctetStringWrap("swap"), nil },
 			Document: "memErrorName",
 		},
 		{
@@ -25,7 +27,7 @@ func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
 			Type: gosnmp.Integer,
 			OnGet: func() (value interface{}, err error) {
 				if val, err := mem.SwapMemory(); err == nil {
-					return GoSNMPServer.Asn1IntegerWrap(int(val.Total / 1024)), nil
+					return snmp.Asn1IntegerWrap(int(val.Total / 1024)), nil
 				} else {
 					return nil, err
 				}
@@ -37,7 +39,7 @@ func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
 			Type: gosnmp.Integer,
 			OnGet: func() (value interface{}, err error) {
 				if val, err := mem.SwapMemory(); err == nil {
-					return GoSNMPServer.Asn1IntegerWrap(int(val.Free / 1024)), nil
+					return snmp.Asn1IntegerWrap(int(val.Free / 1024)), nil
 				} else {
 					return nil, err
 				}
@@ -49,7 +51,7 @@ func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
 			Type: gosnmp.Integer,
 			OnGet: func() (value interface{}, err error) {
 				if val, err := mem.VirtualMemory(); err == nil {
-					return GoSNMPServer.Asn1IntegerWrap(int(val.Total / 1024)), nil
+					return snmp.Asn1IntegerWrap(int(val.Total / 1024)), nil
 				} else {
 					return nil, err
 				}
@@ -61,7 +63,7 @@ func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
 			Type: gosnmp.Integer,
 			OnGet: func() (value interface{}, err error) {
 				if val, err := mem.VirtualMemory(); err == nil {
-					return GoSNMPServer.Asn1IntegerWrap(int(val.Available / 1024)), nil
+					return snmp.Asn1IntegerWrap(int(val.Available / 1024)), nil
 				} else {
 					return nil, err
 				}
@@ -74,7 +76,7 @@ func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
 			OnGet: func() (value interface{}, err error) {
 				if val, err := mem.VirtualMemory(); err == nil {
 					if valSwap, errSwap := mem.SwapMemory(); errSwap == nil {
-						return GoSNMPServer.Asn1IntegerWrap(int((val.Available + valSwap.Free) / 1024)), nil
+						return snmp.Asn1IntegerWrap(int((val.Available + valSwap.Free) / 1024)), nil
 					} else {
 						return nil, errSwap
 					}
@@ -87,7 +89,7 @@ func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
 		{
 			OID:      "1.3.6.1.4.1.2021.4.12",
 			Type:     gosnmp.Integer,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1IntegerWrap(0), nil },
+			OnGet:    func() (value interface{}, err error) { return snmp.Asn1IntegerWrap(0), nil },
 			Document: "memMinimumSwap",
 		},
 		{
@@ -95,7 +97,7 @@ func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
 			Type: gosnmp.Integer,
 			OnGet: func() (value interface{}, err error) {
 				if val, err := mem.VirtualMemory(); err == nil {
-					return GoSNMPServer.Asn1IntegerWrap(int(val.Buffers / 1024)), nil
+					return snmp.Asn1IntegerWrap(int(val.Buffers / 1024)), nil
 				} else {
 					return nil, err
 				}
@@ -107,7 +109,7 @@ func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
 			Type: gosnmp.Integer,
 			OnGet: func() (value interface{}, err error) {
 				if val, err := mem.VirtualMemory(); err == nil {
-					return GoSNMPServer.Asn1IntegerWrap(int(val.Cached / 1024)), nil
+					return snmp.Asn1IntegerWrap(int(val.Cached / 1024)), nil
 				} else {
 					return nil, err
 				}
@@ -117,13 +119,13 @@ func MemoryOIDs() []*GoSNMPServer.PDUValueControlItem {
 		{
 			OID:      "1.3.6.1.4.1.2021.4.100",
 			Type:     gosnmp.Integer,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1IntegerWrap(0), nil },
+			OnGet:    func() (value interface{}, err error) { return snmp.Asn1IntegerWrap(0), nil },
 			Document: "memSwapError",
 		},
 		{
 			OID:      "1.3.6.1.4.1.2021.4.101",
 			Type:     gosnmp.OctetString,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1OctetStringWrap(""), nil },
+			OnGet:    func() (value interface{}, err error) { return snmp.Asn1OctetStringWrap(""), nil },
 			Document: "memSwapErrorMsg",
 		},
 	}

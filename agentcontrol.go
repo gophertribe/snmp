@@ -1,13 +1,13 @@
-package GoSNMPServer
+package snmp
 
 import (
 	"reflect"
 	"strings"
 	"time"
 
+	"github.com/gosnmp/gosnmp"
 	"github.com/pkg/errors"
 	"github.com/shirou/gopsutil/host"
-	"github.com/slayercat/gosnmp"
 )
 
 type FuncGetAuthoritativeEngineTime func() uint32
@@ -122,7 +122,7 @@ func (t *MasterAgent) getUserNameFromRequest(request *gosnmp.SnmpPacket) string 
 func (t *MasterAgent) ResponseForBuffer(i []byte) ([]byte, error) {
 	// Decode
 	vhandle := gosnmp.GoSNMP{}
-	vhandle.Logger = &SnmpLoggerAdapter{t.Logger}
+	vhandle.Logger = gosnmp.NewLogger(&SnmpLoggerAdapter{t.Logger})
 	mb, _ := t.getUsmSecurityParametersFromUser("")
 	vhandle.SecurityParameters = mb
 	request, decodeError := vhandle.SnmpDecodePacket(i)
@@ -172,10 +172,7 @@ func (t *MasterAgent) ResponseForBuffer(i []byte) ([]byte, error) {
 			request.SecurityParameters = vhandle.SecurityParameters
 			return t.marshalPkt(request, err)
 		} else {
-			securityParamters := usm
-			securityParamters.GenKeys()
-			securityParamters.GenSalt()
-			val.SecurityParameters = securityParamters
+			val.SecurityParameters = usm.Copy()
 
 			return t.marshalPkt(val, err)
 		}
@@ -206,7 +203,7 @@ func (t *MasterAgent) marshalPkt(pkt *gosnmp.SnmpPacket, err error) ([]byte, err
 func (t *MasterAgent) getUsmSecurityParametersFromUser(username string) (*gosnmp.UsmSecurityParameters, error) {
 	if username == "" {
 		return &gosnmp.UsmSecurityParameters{
-			Logger:                   &SnmpLoggerAdapter{t.Logger},
+			Logger:                   gosnmp.NewLogger(&SnmpLoggerAdapter{t.Logger}),
 			AuthoritativeEngineID:    string(t.SecurityConfig.AuthoritativeEngineID.Marshal()),
 			AuthoritativeEngineBoots: t.SecurityConfig.AuthoritativeEngineBoots,
 			AuthoritativeEngineTime:  t.SecurityConfig.OnGetAuthoritativeEngineTime(),
@@ -215,7 +212,7 @@ func (t *MasterAgent) getUsmSecurityParametersFromUser(username string) (*gosnmp
 	}
 	if val := t.SecurityConfig.FindForUser(username); val != nil {
 		fval := val.Copy().(*gosnmp.UsmSecurityParameters)
-		fval.Logger = &SnmpLoggerAdapter{t.Logger}
+		fval.Logger = gosnmp.NewLogger(&SnmpLoggerAdapter{t.Logger})
 		fval.AuthoritativeEngineID = string(t.SecurityConfig.AuthoritativeEngineID.Marshal())
 		fval.AuthoritativeEngineBoots = t.SecurityConfig.AuthoritativeEngineBoots
 		fval.AuthoritativeEngineTime = t.SecurityConfig.OnGetAuthoritativeEngineTime()

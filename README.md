@@ -21,7 +21,7 @@ snmpwalk -v 3 -l authPriv  -n public -u testuser   -a md5 -A testauth -x des -X 
 Quick Start
 -----
 ```golang
-import "github.com/slayercat/gosnmp"
+import "github.com/gosnmp/gosnmp"
 import "github.com/slayercat/GoSNMPServer"
 import "github.com/slayercat/GoSNMPServer/mibImps"
 ```

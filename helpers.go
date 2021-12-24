@@ -1,9 +1,12 @@
-package GoSNMPServer
+package snmp
 
-import "github.com/pkg/errors"
-import "github.com/slayercat/gosnmp"
-import "strings"
-import "strconv"
+import (
+	"strconv"
+	"strings"
+
+	"github.com/gosnmp/gosnmp"
+	"github.com/pkg/errors"
+)
 
 func getPktContextOrCommunity(i *gosnmp.SnmpPacket) string {
 	if i.Version == gosnmp.Version3 {

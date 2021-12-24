@@ -1,7 +1,10 @@
-package GoSNMPServer
+package snmp
 
-import "os"
-import "github.com/sirupsen/logrus"
+import (
+	"os"
+
+	"github.com/sirupsen/logrus"
+)
 
 // ILogger is a logger
 type ILogger interface {
